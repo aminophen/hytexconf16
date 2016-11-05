@@ -1,0 +1,16 @@
+% xelatex snowman-img.tex
+\documentclass[border=5pt]{standalone}
+\pagestyle{empty}
+% input PSName of the font (ex. KozMinPr6N-Regular) from
+% standard input
+\makeatletter
+\message{\space\space PSName of the font = }\read-1to\fontname
+\edef\fontname{\expandafter\zap@space\fontname \@empty}
+\message{\space\space Using "\fontname"}
+\makeatother
+% font setting
+\usepackage{fontspec}
+\newfontfamily\ftest{\fontname}
+\begin{document}
+{\ftest\fontsize{60pt}{60pt}\selectfont \symbol{"2603}}
+\end{document}

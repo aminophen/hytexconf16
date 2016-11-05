@@ -1,0 +1,111 @@
+\documentclass[a4paper,twocolumn]{jsarticle}
+\usepackage[dvipdfm,margin=20truemm]{geometry}
+\usepackage{hytexconf16} % personal settings
+\makeatletter
+% set box before loading newpxtext/newpxmath (ensure OT1 encoding)
+\newbox\TEMPAA
+\setbox\TEMPAA=\hbox{\tate\adjustbaseline{\AA}}
+\edef\TEMPENC{\f@encoding}
+% all done
+\makeatother
+\usepackage{plext}
+\usepackage{newpxtext,newpxmath}
+\pagestyle{empty}
+
+\AtBeginDvi{\special{pdf:mapfile hiraginopron.map}}
+
+\title{\TeX\ Live 2016の新しい\pLaTeX}
+\author{山下 弘展(Hironobu Yamashita)}
+\date{}
+\begin{document}
+\maketitle
+
+\pLaTeX は日本語組版のデファクトスタンダードとなっている．
+しかし，幾つかの組版上の問題点や\LaTeX の修正との不整合も指摘されていた．
+本講演では，\TeX\ Live 2016以降に収録されている，
+日本語\TeX 開発コミュニティによる新しい\pLaTeX の現状を整理する．
+
+\section{コミュニティ版\pLaTeX の概要}
+株式会社アスキー
+（現アスキー・メディアワークス\footnote{\texttt{http://asciimw.jp}}）に
+よって開発された\pLaTeX は，\pTeX とともに2010年に\TeX\ Liveへと
+取り込まれた．以来，既定エンジンの\pTeX から\epTeX への変更，
+\epTeX の仕様変更，さらには\pLaTeX のベースである\LaTeX の修正など，
+\pLaTeX の周辺は大きく変化を遂げた．
+
+こうした流れのなかで，\pLaTeX は2006年のアスキーによる最後のリリース
+から10年近くが経過し，こうした変化による影響が無視できなくなってきた．
+そこで，\pTeX/\epTeX との不整合を解消することを主目的として，
+2016年1月に日本語\TeX 開発コミュニティ(Japanese \TeX\ Development
+Community\footnote{\texttt{https://texjp.org}})が\pLaTeX をforkした．
+これがコミュニティ版
+\pLaTeX\footnote{\texttt{https://github.com/texjporg/platex}}で
+あり，\upLaTeX\footnote{\texttt{https://github.com/texjporg/uplatex}}も
+これと同期する形で開発されている．
+
+\section{\TeX\ Live 2016での\pLaTeX の変更点}
+主なものを箇条書きで列挙する．詳細は\pLaTeX とともに配布されている
+\file{plnewsc*.tex}を参照されたい．
+\begin{itemize}
+  \item \pTeX の修正への追随：
+        脚注の合印前後，|tabular|環境前後などの
+        不自然なアキを削除
+  \item \LaTeX への追随：
+        |\eminnershape|による強調書体変更機能への適合，
+        \file{latexrelease}パッケージへの対応
+  \item 組版処理の改善：合印直後の改行が抑制される問題を解消，
+        合印直前のベタ組を実現
+  \item 8bit font encodingへの対応：文字コード128--255の欧文文字前後の
+        |\xkanjiskip|アキを設定
+  \item 縦組の不具合修正，ascmacパッケージの修正
+\end{itemize}
+
+\section{今後の\pLaTeX の開発課題}
+現行のコミュニティ版\pLaTeX も，まだ従来から指摘されているいくつかの
+不都合が残っている．特に縦組で問題になる現象が多く，原因も判明して
+いるが，修正により生じる副作用に注意しつつ検討する余地がある．
+
+以下に2点列挙する：
+\begin{itemize}
+\item ベースライン補正量|\{y,t}baselineshift|がゼロでない場合に，
+      アクセント合成文字が乱れる
+\item 縦組で\file{amsmath}の|align|環境を使うと，
+      数式の位置や数式番号がずれる
+\end{itemize}
+入力例と現状の縦組による出力例を以下に示す：
+  \begin{quote}\begin{verbatim}
+OT1 encodingの合成文字\AA が変\par
+align環境\texttt{\&}が1つ %% 少し上へ
+\begin{align}
+  a_1 &= b_1+c_1\\
+  a_2 &= b_2+c_2-d_2
+\end{align}
+align環境\texttt{\&}なし %% 端に付く
+\begin{align}
+  a_1=b_1+c_1
+\end{align}
+比較用のequation環境
+\begin{equation}
+  a_1=b_1+c_1
+\end{equation}
+  \end{verbatim}\end{quote}
+  \begin{center}
+    \setlength{\fboxsep}{10pt}
+      \fbox{\begin{minipage}<t>{15zw}
+        \TEMPENC\ encodingの合成文字\box\TEMPAA が変\par
+        align環境\texttt{\&}が1つ %% 少し上へ
+        \begin{align}
+          a_1 &= b_1+c_1\\
+          a_2 &= b_2+c_2-d_2
+        \end{align}
+        align環境\texttt{\&}なし %% 端に付く
+        \begin{align}
+          a_1=b_1+c_1
+        \end{align}
+        比較用のequation環境
+        \begin{equation}
+          a_1=b_1+c_1
+        \end{equation}
+      \end{minipage}}
+  \end{center}
+\end{document}

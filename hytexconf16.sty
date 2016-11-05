@@ -1,0 +1,272 @@
+% hytexconf16.sty by Hironobu Yamashita
+% (prepared for texconf16 abstract/slide, personal use)
+
+\NeedsTeXFormat{pLaTeX2e}
+\ProvidesPackage{hytexconf16}[2016/09/30 v1.0 texconf16 style (HY)]
+
+% this package should be used with jsarticle.cls
+\@ifclassloaded{jsarticle}{}{%
+  \PackageError{hytexconf16}{%
+    This package should be used with jsarticle.cls}\@ehc
+  \expandafter\endinput
+}
+
+% load some packages
+%\RequirePackage{shortvrb}
+%\MakeShortVerb{\|}
+
+%%%%% patch latex internals
+
+% scaling (nomag/nomag* equal to mag)
+\ifx\jsc@magtrue\@undefined\else
+  \smallskipamount=3\jsc@mpt plus 1\jsc@mpt minus 1\jsc@mpt
+  \medskipamount =6\jsc@mpt plus 2\jsc@mpt minus 2\jsc@mpt
+  \bigskipamount =12\jsc@mpt plus 4\jsc@mpt minus 4\jsc@mpt
+\fi
+
+%%%%% patch jsarticle internals
+
+% \xkanjiskip scaling (removed \if@slide ... \else ... \fi)
+\def\@setfontsize#1#2#3{%
+  \ifx\protect\@typeset@protect
+    \let\@currsize#1%
+  \fi
+  \fontsize{#2}{#3}\selectfont
+  \ifdim\parindent>\z@
+    \if@english
+      \parindent=1em
+    \else
+      \parindent=1zw
+    \fi
+  \fi
+  \kanjiskip=0zw plus .1zw minus .01zw
+  \ifdim\xkanjiskip>\z@
+    \xkanjiskip=0.25em plus 0.15em minus 0.06em
+  \fi}
+% \maketitle without rules (for slide mode)
+\if@slide
+  \renewcommand{\maketitle}{%
+    \begin{titlepage}%
+      \let\footnotesize\small
+      \let\footnoterule\relax
+      \let\footnote\thanks
+      \null\vfil
+        \begin{center}
+          \large \mbox{} \\[3zw]
+          {\maybeblue \huge \@title}%
+          \smallskip
+          {\maybeblue\hrule \@width\textwidth \@height\z@ \@depth1ex\relax}\par
+          \mbox{} \\[1zw]
+          {\@date}\par
+          \medskip
+          {\@author}%
+          \vfill
+        \end{center}
+%      \par
+%      \@thanks\vfil\null
+    \end{titlepage}%
+    \setcounter{footnote}{0}%
+    \global\let\thanks\relax
+    \global\let\maketitle\relax
+    \global\let\@thanks\@empty
+    \global\let\@author\@empty
+    \global\let\@date\@empty
+    \global\let\@title\@empty
+    \global\let\title\relax
+    \global\let\author\relax
+    \global\let\date\relax
+    \global\let\and\relax
+  }%
+\fi
+% \maketitle without \@date (used only in notitlepage mode)
+\def\@maketitle{%
+  \newpage\null
+  \vskip 1.5em%
+  \begin{center}%
+    \let\footnote\thanks
+    {\LARGE \@title \par}%
+    \vskip 1.5em%
+    {\large
+      \lineskip .5em
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+  \end{center}%
+  \par\vskip 1.5em%
+  \ifvoid\@abstractbox\else\centerline{\box\@abstractbox}\vskip1.5em\fi
+}
+% adjust footnote mark (the default style *1 is a bit odd when used with newpx)
+\def\thefootnote{\ifnum\c@footnote>\z@%
+                   \leavevmode\raise.1ex\hbox{${}^\dagger$}%
+                              \raise.5ex\hbox{\@arabic\c@footnote}%
+                 \fi}
+
+%%%%% patch hyperref internals
+
+% disable bookmark extraction temporarily
+\newcommand{\DisableBookmarks}{\let\WriteBookmarks\relax}
+\newcommand{\EnableBookmarks}{\def\WriteBookmarks{0}}
+
+%%%%% slide macros
+
+% customize for slide
+\if@slide
+  \newcount\SLIDETEMP
+  \SLIDETEMP=\z@
+  \newcommand{\SECTION}{\@ifstar{\SLIDETEMP=\@ne\SECTIONX}{\SECTIONX}}
+  \newcommand{\SECTIONX}{%
+    \ifnum\SLIDETEMP=\z@\relax
+      \SLIDETEMP=\@ne\EnableBookmarks
+    \else
+      \addtocounter{section}{-1}\DisableBookmarks
+    \fi
+    \section
+  }
+  \newcommand{\SUBSECTION}{\@ifstar{\SLIDETEMP=\@ne\SUBSECTIONX}{\SUBSECTIONX}}
+  \newcommand{\SUBSECTIONX}{%
+    \ifnum\SLIDETEMP=\z@\relax
+      \SLIDETEMP=\@ne\EnableBookmarks
+    \else
+      \addtocounter{subsection}{-1}\DisableBookmarks
+    \fi
+    \clearpage\subsection
+  }
+  \newwrite\SLIDEFILE
+  \newcount\SLIDENUM
+  % slide transition
+  \def\SLIDEBEGIN#1{%
+    \SLIDETEMP=\z@
+    \SLIDENUM=#1\relax
+    \immediate\openout\SLIDEFILE=\jobname.sld\relax
+    \begingroup
+      \let\do\@makeother \dospecials \catcode`\@=0 \catcode`\%=14
+      \csname SLIDEHEAD@\romannumeral\the\SLIDENUM\endcsname
+  }
+  \long\def\SLIDEHEAD@i#1\SLIDEFIRST#2\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEAD@ii#1\SLIDEFIRST#2\SLIDESECOND#3\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEAD@iii#1\SLIDEFIRST#2\SLIDESECOND#3\SLIDETHIRD#4\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3#4}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEAD@iv#1\SLIDEFIRST#2\SLIDESECOND#3\SLIDETHIRD#4\SLIDEFOURTH#5\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3#4}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#3#4#5}%
+      \SLIDELAST
+  }
+  \def\SLIDELAST{%
+    \endgroup
+    \immediate\closeout\SLIDEFILE
+  }
+  \def\SLIDEEND{%
+    \input{\jobname.sld}\relax
+    \SLIDETEMP=\z@
+  }
+  % slide transition with fade out
+  \def\SLIDEBEGINx#1{%
+    \SLIDETEMP=\z@
+    \SLIDENUM=#1\relax
+    \immediate\openout\SLIDEFILE=\jobname.sld\relax
+    \begingroup
+      \let\do\@makeother \dospecials \catcode`\@=0 \catcode`\%=14
+      \csname SLIDEHEADx@\romannumeral\the\SLIDENUM\endcsname
+  }
+  \long\def\SLIDEHEADx@i#1\SLIDEFIRST#2\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEADx@ii#1\SLIDEFIRST#2\SLIDEFIRSTx#3\SLIDESECOND#4\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEADx@iii#1\SLIDEFIRST#2\SLIDEFIRSTx#3\SLIDESECOND#4\SLIDESECONDx#5\SLIDETHIRD#6\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4#5}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4#6}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEADx@iv#1\SLIDEFIRST#2\SLIDEFIRSTx#3\SLIDESECOND#4%
+           \SLIDETHIRD#5\SLIDETHIRDx#6\SLIDEFOURTH#7\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#5#6}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#5#7}%
+      \SLIDELAST
+  }
+  \long\def\SLIDEHEADx@v#1\SLIDEFIRST#2\SLIDEFIRSTx#3\SLIDESECOND#4\SLIDESECONDx#5
+           \SLIDETHIRD#6\SLIDEFOURTH#7\SLIDEFOURTHx#8\SLIDEFIFTH#9\SLIDELAST{%
+      \immediate\write\SLIDEFILE{#1#2#3}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4#5}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#2#4#6}%
+      \immediate\write\SLIDEFILE{\string\clearpage}%
+      \immediate\write\SLIDEFILE{#1#7#8}%
+      \immediate\write\SLIDEFILE{#1#7#9}%
+      \SLIDELAST
+  }
+\fi
+
+% logos
+\def\NTS{$\mathcal{N\kern-0.35em\lower0.5ex\hbox{$\mathcal{T}$}\kern-0.2emS}$}
+\def\eTeX{$\varepsilon$-\TeX}
+%\def\pTeX{p\kern-.15em\TeX}
+\def\pTeX{p\kern-.08em\TeX}
+\def\upTeX{u\pTeX}
+\def\epTeX{$\varepsilon$-\pTeX}
+\def\eupTeX{$\varepsilon$-\upTeX}
+%\def\pLaTeX{p\kern-.05em\LaTeX}
+\def\pLaTeX{p\LaTeX}
+\def\upLaTeX{u\pLaTeX}
+%\def\pLaTeXe{p\kern-.05em\LaTeXe}
+\def\pLaTeXe{p\LaTeXe}
+\def\upLaTeXe{u\pLaTeXe}
+
+% misc
+\def\file#1{\textsf{#1}}
+\def\option#1{\texttt{#1}}
+\xspcode"5C=3  % \
+\xspcode"3C=3  % <
+\xspcode"3E=3  % >
+\xspcode"26=3  % &
+\newcommand{\EMPH}[1]{{\bfseries #1}}
+\newcommand{\COLOREMPH}[1]{{\bfseries\color{red} #1}}
+
+% finale
+\newcommand{\GOSEICHO}{%
+  \leavevmode
+  \lower15pt\hbox{御}\hspace{1pt}\lower10pt\hbox{清}\hspace{1pt}%
+  \lower6pt\hbox{聴}\hspace{1pt}\lower3pt\hbox{あ}\hspace{1pt}%
+  \lower1pt\hbox{り}\hspace{1pt}\raise0pt\hbox{が}\hspace{1pt}%
+  \raise1pt\hbox{と}\hspace{1pt}\raise1pt\hbox{う}\hspace{1pt}%
+  \raise0pt\hbox{ご}\hspace{1pt}\lower1pt\hbox{ざ}\hspace{1pt}%
+  \lower3pt\hbox{い}\hspace{1pt}\lower6pt\hbox{ま}\hspace{1pt}%
+  \lower10pt\hbox{し}\hspace{1pt}\lower15pt\hbox{た}\par
+}
+
+%%%%% all done
+
+\endinput
