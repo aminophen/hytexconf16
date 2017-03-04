@@ -485,16 +485,18 @@ Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
 \renewcommand{\eminnershape}{\gtfamily \scshape}
 \begin{tabular}{c|ccc}\hline
  & 地の文 & 強調 & \COLOREMPH{入れ子の強調} \\ \hline
-\LaTeX のデフォルト & \textmc{Roman}
- & \emph{italic} & \emph{\emph{Roman}} \\
+\LaTeX のデフォルト
+ & \parbox{3zw}{\centering\rmfamily Roman}
+ & \parbox{4zw}{\centering\rmfamily \emph{Italic}}
+ & \parbox{4zw}{\centering\rmfamily \emph{\emph{Roman}}} \\ \hline
 \pLaTeX のデフォルト
- & \parbox{3zw}{\centering\textmc{明朝体}\par\textmc{\strut Roman}}
- & \parbox{4zw}{\centering\emph{ゴシック}\par\emph{\strut italic}}
- & \parbox{3zw}{\centering\textmc{明朝体}\par\textmc{\strut Roman}} \\
+ & \parbox{3zw}{\centering\rmfamily 明朝体\par\strut Roman}
+ & \parbox{4zw}{\centering\rmfamily \emph{ゴシック}\par\strut \emph{Italic}}
+ & \parbox{4zw}{\centering\rmfamily \textmc{明朝体}\par\strut \textrm{Roman}} \\ \hline
 カスタマイズ
- & \parbox{3zw}{\centering\textmc{明朝体}\par\textmc{\strut Roman}}
- & \parbox{4zw}{\centering\emph{ゴシック}\par\emph{\strut italic}}
- & \parbox{3zw}{\centering\emph{\emph{明朝体}}\par\emph{\emph{\strut Roman}}} \\ \hline
+ & \parbox{3zw}{\centering\rmfamily 明朝体\par\strut Roman}
+ & \parbox{4zw}{\centering\rmfamily \emph{ゴシック}\par\strut \emph{Italic}}
+ & \parbox{7.5zw}{\centering\rmfamily \emph{\emph{ゴシック体}}\par\strut \emph{\emph{Small Capital}}} \\ \hline
 \end{tabular}
 \end{center}
 @SLIDELAST
@@ -827,5 +829,14 @@ Happy \pLaTeX ing!
 \end{center}
 @SLIDELAST
 \SLIDEEND
+
+\clearpage\null\vfill
+\begin{center}
+ソースコードあります\par
+\url{https://github.com/aminophen/hytexconf16}\par
+ブログも見てね\par
+\url{http://acetaminophen.hatenablog.com}
+\end{center}
+\vfill\null
 
 \end{document}
