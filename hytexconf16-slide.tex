@@ -482,7 +482,6 @@ Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
 \end{quote}
 \begin{center}
 \def\arraystretch{1.8}
-\renewcommand{\eminnershape}{\gtfamily \scshape}
 \begin{tabular}{c|ccc}\hline
  & 地の文 & 強調 & \COLOREMPH{入れ子の強調} \\ \hline
 \LaTeX のデフォルト
@@ -496,7 +495,8 @@ Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
 カスタマイズ
  & \parbox{3zw}{\centering\rmfamily 明朝体\par\strut Roman}
  & \parbox{4zw}{\centering\rmfamily \emph{ゴシック}\par\strut \emph{Italic}}
- & \parbox{7.5zw}{\centering\rmfamily \emph{\emph{ゴシック体}}\par\strut \emph{\emph{Small Capital}}} \\ \hline
+ & \parbox{7.5zw}{\centering\rmfamily \emph{\emph{ゴシック体}}\par\strut
+   \renewcommand{\eminnershape}{\gtfamily \scshape}\emph{\emph{Small Capital}}} \\ \hline
 \end{tabular}
 \end{center}
 @SLIDELAST
